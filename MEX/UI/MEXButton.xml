@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+<Context>	  
+    <Button ID="ExportButton"		Offset="0,0"	Anchor="R,B"	Size="25,25"	Texture="ActionPanel_Notification2" NoStateChange="1">
+		<Image ID="Icon"   Size="32,32"  Texture="Units32.dds" TextureOffset="96,0" Anchor="C,C" Color="208,208,208,255" />
+    </Button>   
+</Context>
+-->
+
+<Instance>
+  <Button ID="ExportButton" Size="100,36" Offset="-8,-5" Style="SubContainerSmall">
+    <Label Anchor="C,C" String="Export Map" Font="Arial" FontSize="16" ColorSet="Beige"/>
+  </Button>
+</Instance>
