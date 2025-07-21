@@ -12,7 +12,7 @@ function JsonEncode(tbl)
         buildingsArray = buildingsArray .. "]"
 
         local e = string.format(
-        "{\"X\":%d, \"Y\":%d, \"TerrainType\":\"%s\", \"FeatureType\":\"%s\", \"ResourceType\":\"%s\", \"ImprovementType\":\"%s\", \"IsHills\":%s, \"IsMountain\":%s, \"IsWater\":%s, \"IsCity\":%s, \"IsRiver\":%s, \"IsNEOfRiver\":%s, \"IsWOfRiver\":%s, \"IsNWOfRiver\":%s, \"RiverSWFlow\":\"%s\", \"RiverEFlow\":\"%s\", \"RiverSEFlow\":\"%s\", \"Appeal\":%d, \"Continent\":\"%s\", \"Civilization\":\"%s\", \"Leader\":\"%s\", \"CityName\":\"%s\", \"District\":\"%s\", \"Buildings\":%s, \"Food\":%d, \"Production\":%d, \"Gold\":%d, \"Science\":%d, \"Culture\":%d, \"Faith\":%d}",
+        "{\"X\":%d, \"Y\":%d, \"TerrainType\":\"%s\", \"FeatureType\":\"%s\", \"ResourceType\":\"%s\", \"ImprovementType\":\"%s\", \"IsHills\":%s, \"IsMountain\":%s, \"IsWater\":%s, \"IsCity\":%s, \"TileCity\":\"%s\", \"IsRiver\":%s, \"IsNEOfRiver\":%s, \"IsWOfRiver\":%s, \"IsNWOfRiver\":%s, \"RiverSWFlow\":\"%s\", \"RiverEFlow\":\"%s\", \"RiverSEFlow\":\"%s\", \"Appeal\":%d, \"Continent\":\"%s\", \"Civilization\":\"%s\", \"Leader\":\"%s\", \"CityName\":\"%s\", \"District\":\"%s\", \"Buildings\":%s, \"Food\":%d, \"Production\":%d, \"Gold\":%d, \"Science\":%d, \"Culture\":%d, \"Faith\":%d}",
         tonumber(entry.X),
         tonumber(entry.Y),
         tostring(entry.TerrainType),
@@ -23,9 +23,10 @@ function JsonEncode(tbl)
         tostring(entry.IsMountain),
         tostring(entry.IsWater),
         tostring(entry.IsCity),
+        tostring(entry.TileCity),
         tostring(entry.IsRiver),
         tostring(entry.IsNEOfRiver), tostring(entry.IsWOfRiver), tostring(entry.IsNWOfRiver),
-        tostring(entry.RiverSWFlow), tostring(entry.RiverEFlow), tostring(entry.RiverSEFlow),
+        tostring(entry.RiverSWFlow or "NONE"), tostring(entry.RiverEFlow or "NONE"), tostring(entry.RiverSEFlow or "NONE"),
         tonumber(entry.Appeal or 0),
         tostring(entry.ContinentType),
         tostring(entry.OwnerCiv),
@@ -76,6 +77,7 @@ function ExportMapToJSONChunked()
         local cityName = "NONE"
         local districtType = "NONE"
         local buildings = {}
+        local tileCityOwner = "NONE"
 
         if ownerID ~= -1 then
             local config = PlayerConfigurations[ownerID]
@@ -118,23 +120,28 @@ function ExportMapToJSONChunked()
             end
         end
 
+        local cityTile = Cities.GetPlotPurchaseCity(plot)
+        if cityTile then
+            tileCityOwner = SafeLookup(cityTile:GetName())
+        end
+
         local SWFlow = plot:GetRiverSWFlowDirection()
         local EFlow = plot:GetRiverEFlowDirection()
         local SEFlow = plot:GetRiverSEFlowDirection()
 
-        if SWFlow ~= -1 then
+        if SWFlow ~= nil and SWFlow ~= -1 then
             SWFlow = DirectionTypes[SWFlow]
         else
             SWFlow = "NONE"
         end
 
-        if EFlow ~= -1 then
+        if EFlow ~= nil and EFlow ~= -1 then
             EFlow = DirectionTypes[EFlow]
         else
             EFlow = "NONE"
         end
 
-        if SEFlow ~= -1 then
+        if SEFlow ~= nil and SEFlow ~= -1 then
             SEFlow = DirectionTypes[SEFlow]
         else
             SEFlow = "NONE"
@@ -152,6 +159,7 @@ function ExportMapToJSONChunked()
             IsMountain = plot:IsMountain(),
             IsWater = plot:IsWater(),
             IsCity = plot:IsCity(),
+            TileCity = tileCityOwner,
             IsRiver = plot:IsRiver(),
             IsNEOfRiver = plot:IsNEOfRiver(),
             IsWOfRiver = plot:IsWOfRiver(),
