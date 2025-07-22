@@ -1,18 +1,31 @@
+function escapeString(str)
+    if type(str) ~= "string" then
+        return ""
+    end
+
+    str = string.gsub(str, "\\", "\\\\")  -- escape backslashes
+    str = string.gsub(str, "\"", "\\\"")  -- escape double quotes
+    str = string.gsub(str, "\b", "\\b")   -- backspace
+    str = string.gsub(str, "\f", "\\f")   -- form feed
+    str = string.gsub(str, "\n", "\\n")   -- newline
+    str = string.gsub(str, "\r", "\\r")   -- carriage return
+    str = string.gsub(str, "\t", "\\t")   -- tab
+    return str
+end
+
+
 function JsonEncode(tbl)
     local json = "["
     for i, entry in ipairs(tbl) do
 
-        local buildingsArray = "["
-        for j, b in ipairs(entry.Buildings or {}) do
-            buildingsArray = buildingsArray .. "\"" .. escapeString(b) .. "\""
-            if j < #entry.Buildings then
-                buildingsArray = buildingsArray .. ","
-            end
+        local rawBuildings = {}
+        for _, b in ipairs(entry.Buildings or {}) do
+            table.insert(rawBuildings, "\"" .. escapeString(b) .. "\"")
         end
-        buildingsArray = buildingsArray .. "]"
+        local buildingsArray = "[" .. table.concat(rawBuildings, ",") .. "]"
 
         local e = string.format(
-        "{\"X\":%d, \"Y\":%d, \"TerrainType\":\"%s\", \"FeatureType\":\"%s\", \"ResourceType\":\"%s\", \"ImprovementType\":\"%s\", \"IsHills\":%s, \"IsMountain\":%s, \"IsWater\":%s, \"IsCity\":%s, \"TileCity\":\"%s\", \"IsRiver\":%s, \"IsNEOfRiver\":%s, \"IsWOfRiver\":%s, \"IsNWOfRiver\":%s, \"RiverSWFlow\":\"%s\", \"RiverEFlow\":\"%s\", \"RiverSEFlow\":\"%s\", \"Appeal\":%d, \"Continent\":\"%s\", \"Civilization\":\"%s\", \"Leader\":\"%s\", \"CityName\":\"%s\", \"District\":\"%s\", \"Buildings\":%s, \"Food\":%d, \"Production\":%d, \"Gold\":%d, \"Science\":%d, \"Culture\":%d, \"Faith\":%d}",
+        "{\"X\":%d, \"Y\":%d, \"TerrainType\":\"%s\", \"FeatureType\":\"%s\", \"ResourceType\":\"%s\", \"ImprovementType\":\"%s\", \"IsHills\":%s, \"IsMountain\":%s, \"IsWater\":%s, \"IsCity\":%s, \"TileCity\":\"%s\", \"IsRiver\":%s, \"IsNEOfRiver\":%s, \"IsWOfRiver\":%s, \"IsNWOfRiver\":%s, \"RiverSWFlow\":\"%s\", \"RiverEFlow\":\"%s\", \"RiverSEFlow\":\"%s\", \"Appeal\":%d, \"Continent\":\"%s\", \"Civilization\":\"%s\", \"Leader\":\"%s\", \"CityName\":\"%s\", \"District\":\"%s\", \"Wonder\":\"%s\", \"Buildings\":%s, \"Food\":%d, \"Production\":%d, \"Gold\":%d, \"Science\":%d, \"Culture\":%d, \"Faith\":%d}",
         tonumber(entry.X),
         tonumber(entry.Y),
         tostring(entry.TerrainType),
@@ -33,6 +46,7 @@ function JsonEncode(tbl)
         tostring(entry.OwnerLeader),
         tostring(entry.CityName),
         tostring(entry.DistrictType),
+        tostring(entry.Wonder),
         buildingsArray,
         tonumber(entry.Food), tonumber(entry.Production), tonumber(entry.Gold),
         tonumber(entry.Science), tonumber(entry.Culture), tonumber(entry.Faith)
@@ -64,7 +78,7 @@ DirectionTypes = {
 function ExportMapToJSONChunked()
     print("MAP_DATA_START")
 
-    local chunkSize = 3
+    local chunkSize = 2
     local chunk = {}
     local count = 0
 
@@ -78,6 +92,7 @@ function ExportMapToJSONChunked()
         local districtType = "NONE"
         local buildings = {}
         local tileCityOwner = "NONE"
+        local theWonder = "NONE"
 
         if ownerID ~= -1 then
             local config = PlayerConfigurations[ownerID]
@@ -87,36 +102,24 @@ function ExportMapToJSONChunked()
             end
         end
 
-        -- City on tile
         if plot:IsCity() then
             local city = Cities.GetCityInPlot(plot:GetX(), plot:GetY())
             if city then
                 cityName = SafeLookup(city:GetName())
+                local cityBuildings = city:GetBuildings()
+                for row in GameInfo.Buildings() do
+                    if cityBuildings:HasBuilding(row.Index) and not (row.IsWonder) then
+                        table.insert(buildings, row.BuildingType)
+                    end
+                end
             end
         end
 
-        -- District on tile
         local districtID = plot:GetDistrictType()
         if districtID ~= -1 then
             local districtInfo = GameInfo.Districts[districtID]
             if districtInfo then
                 districtType = SafeLookup(districtInfo.DistrictType)
-            end
-
-            -- Try to get buildings if the district has a city context
-            local city = Cities.GetCityInPlot(plot:GetX(), plot:GetY())
-            if city then
-                local districts = city:GetDistricts()
-                if districts then
-                    local district = districts:FindID(plot:GetDistrictID())
-                    if district and district.IsBuildingComplete then
-                        for building in GameInfo.Buildings() do
-                            if district:IsBuildingComplete(building.Index) then
-                                table.insert(buildings, building.BuildingType)
-                            end
-                        end
-                    end
-                end
             end
         end
 
@@ -147,6 +150,12 @@ function ExportMapToJSONChunked()
             SEFlow = "NONE"
         end
 
+        local wonderType = plot:GetWonderType()
+        if wonderType ~= -1 then
+            local wonderInfo = GameInfo.Buildings[wonderType]
+            theWonder = wonderInfo.BuildingType
+        end
+
         local plotData = 
         {
             X = plot:GetX(),
@@ -174,6 +183,7 @@ function ExportMapToJSONChunked()
             CityName = cityName,
             DistrictType = districtType,
             Buildings = buildings,
+            Wonder = theWonder,
             Food = plot:GetYield(0),
             Production = plot:GetYield(1),
             Gold = plot:GetYield(2),
