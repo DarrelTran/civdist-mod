@@ -25,7 +25,7 @@ function JsonEncode(tbl)
         local buildingsArray = "[" .. table.concat(rawBuildings, ",") .. "]"
 
         local e = string.format(
-        "{\"X\":%d, \"Y\":%d, \"TerrainType\":\"%s\", \"FeatureType\":\"%s\", \"ResourceType\":\"%s\", \"ImprovementType\":\"%s\", \"IsHills\":%s, \"IsMountain\":%s, \"IsWater\":%s, \"IsCity\":%s, \"TileCity\":\"%s\", \"IsRiver\":%s, \"IsNEOfRiver\":%s, \"IsWOfRiver\":%s, \"IsNWOfRiver\":%s, \"RiverSWFlow\":\"%s\", \"RiverEFlow\":\"%s\", \"RiverSEFlow\":\"%s\", \"Appeal\":%d, \"Continent\":\"%s\", \"Civilization\":\"%s\", \"Leader\":\"%s\", \"CityName\":\"%s\", \"District\":\"%s\", \"Wonder\":\"%s\", \"Buildings\":%s, \"Food\":%d, \"Production\":%d, \"Gold\":%d, \"Science\":%d, \"Culture\":%d, \"Faith\":%d}",
+        "{\"X\":%d, \"Y\":%d, \"TerrainType\":\"%s\", \"FeatureType\":\"%s\", \"ResourceType\":\"%s\", \"ImprovementType\":\"%s\", \"IsHills\":%s, \"IsMountain\":%s, \"IsWater\":%s, \"IsCity\":%s, \"TileCity\":\"%s\", \"CityPantheon\":\"%s\", \"IsRiver\":%s, \"IsNEOfRiver\":%s, \"IsWOfRiver\":%s, \"IsNWOfRiver\":%s, \"RiverSWFlow\":\"%s\", \"RiverEFlow\":\"%s\", \"RiverSEFlow\":\"%s\", \"Appeal\":%d, \"Continent\":\"%s\", \"Civilization\":\"%s\", \"Leader\":\"%s\", \"CityName\":\"%s\", \"District\":\"%s\", \"Wonder\":\"%s\", \"Buildings\":%s, \"Food\":%d, \"Production\":%d, \"Gold\":%d, \"Science\":%d, \"Culture\":%d, \"Faith\":%d}",
         tonumber(entry.X),
         tonumber(entry.Y),
         tostring(entry.TerrainType),
@@ -37,6 +37,7 @@ function JsonEncode(tbl)
         tostring(entry.IsWater),
         tostring(entry.IsCity),
         tostring(entry.TileCity),
+        tostring(entry.CityPantheon),
         tostring(entry.IsRiver),
         tostring(entry.IsNEOfRiver), tostring(entry.IsWOfRiver), tostring(entry.IsNWOfRiver),
         tostring(entry.RiverSWFlow or "NONE"), tostring(entry.RiverEFlow or "NONE"), tostring(entry.RiverSEFlow or "NONE"),
@@ -93,6 +94,7 @@ function ExportMapToJSONChunked()
         local buildings = {}
         local tileCityOwner = "NONE"
         local theWonder = "NONE"
+        local cityPantheon = "NONE"
 
         if ownerID ~= -1 then
             local config = PlayerConfigurations[ownerID]
@@ -106,6 +108,10 @@ function ExportMapToJSONChunked()
             local city = Cities.GetCityInPlot(plot:GetX(), plot:GetY())
             if city then
                 cityName = SafeLookup(city:GetName())
+                pantheon = (city:GetReligion()):GetActivePantheon()
+                if pantheon >= 0 then
+                    cityPantheon = SafeLookup(GameInfo.Beliefs[pantheon].Name)
+                end
                 local cityBuildings = city:GetBuildings()
                 for row in GameInfo.Buildings() do
                     if cityBuildings:HasBuilding(row.Index) and not (row.IsWonder) then
@@ -163,12 +169,13 @@ function ExportMapToJSONChunked()
             TerrainType = SafeLookup(GameInfo.Terrains[plot:GetTerrainType()] and GameInfo.Terrains[plot:GetTerrainType()].Name), -- tundra, grassland, ocean, etc
             FeatureType = SafeLookup(GameInfo.Features[plot:GetFeatureType()] and GameInfo.Features[plot:GetFeatureType()].Name),
             ResourceType = SafeLookup(GameInfo.Resources[plot:GetResourceType()] and GameInfo.Resources[plot:GetResourceType()].Name),
-            ImprovementType = SafeLookup(GameInfo.Improvements[improvementID] and GameInfo.Improvements[improvementID].Name),
+            ImprovementType = SafeLookup(GameInfo.Improvements[plot:GetImprovementType()] and GameInfo.Improvements[plot:GetImprovementType()].Name),
             IsHills = plot:IsHills(),
             IsMountain = plot:IsMountain(),
             IsWater = plot:IsWater(),
             IsCity = plot:IsCity(),
             TileCity = tileCityOwner,
+            CityPantheon = cityPantheon,
             IsRiver = plot:IsRiver(),
             IsNEOfRiver = plot:IsNEOfRiver(),
             IsWOfRiver = plot:IsWOfRiver(),
