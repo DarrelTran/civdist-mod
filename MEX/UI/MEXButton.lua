@@ -25,7 +25,7 @@ function JsonEncode(tbl)
         local buildingsArray = "[" .. table.concat(rawBuildings, ",") .. "]"
 
         local e = string.format(
-        "{\"X\":%d, \"Y\":%d, \"TerrainType\":\"%s\", \"FeatureType\":\"%s\", \"ResourceType\":\"%s\", \"ImprovementType\":\"%s\", \"IsHills\":%s, \"IsMountain\":%s, \"IsWater\":%s, \"IsCity\":%s, \"TileCity\":\"%s\", \"CityPantheon\":\"%s\", \"IsRiver\":%s, \"IsNEOfRiver\":%s, \"IsWOfRiver\":%s, \"IsNWOfRiver\":%s, \"RiverSWFlow\":\"%s\", \"RiverEFlow\":\"%s\", \"RiverSEFlow\":\"%s\", \"Appeal\":%d, \"Continent\":\"%s\", \"Civilization\":\"%s\", \"Leader\":\"%s\", \"CityName\":\"%s\", \"District\":\"%s\", \"Wonder\":\"%s\", \"Buildings\":%s, \"Food\":%d, \"Production\":%d, \"Gold\":%d, \"Science\":%d, \"Culture\":%d, \"Faith\":%d}",
+        "{\"X\":%d, \"Y\":%d, \"TerrainType\":\"%s\", \"FeatureType\":\"%s\", \"ResourceType\":\"%s\", \"ImprovementType\":\"%s\", \"IsHills\":%s, \"IsMountain\":%s, \"IsWater\":%s, \"IsCity\":%s, \"TileCity\":\"%s\", \"CityPantheon\":\"%s\", \"FoundedReligion\":\"%s\", \"IsRiver\":%s, \"IsNEOfRiver\":%s, \"IsWOfRiver\":%s, \"IsNWOfRiver\":%s, \"RiverSWFlow\":\"%s\", \"RiverEFlow\":\"%s\", \"RiverSEFlow\":\"%s\", \"Appeal\":%d, \"Continent\":\"%s\", \"Civilization\":\"%s\", \"Leader\":\"%s\", \"CityName\":\"%s\", \"District\":\"%s\", \"Wonder\":\"%s\", \"Buildings\":%s, \"Food\":%d, \"Production\":%d, \"Gold\":%d, \"Science\":%d, \"Culture\":%d, \"Faith\":%d}",
         tonumber(entry.X),
         tonumber(entry.Y),
         tostring(entry.TerrainType),
@@ -38,6 +38,7 @@ function JsonEncode(tbl)
         tostring(entry.IsCity),
         tostring(entry.TileCity),
         tostring(entry.CityPantheon),
+        tostring(entry.CityOwnerFoundedReligion),
         tostring(entry.IsRiver),
         tostring(entry.IsNEOfRiver), tostring(entry.IsWOfRiver), tostring(entry.IsNWOfRiver),
         tostring(entry.RiverSWFlow or "NONE"), tostring(entry.RiverEFlow or "NONE"), tostring(entry.RiverSEFlow or "NONE"),
@@ -79,7 +80,7 @@ DirectionTypes = {
 function ExportMapToJSONChunked()
     print("MAP_DATA_START")
 
-    local chunkSize = 2
+    local chunkSize = 1
     local chunk = {}
     local count = 0
 
@@ -95,6 +96,7 @@ function ExportMapToJSONChunked()
         local tileCityOwner = "NONE"
         local theWonder = "NONE"
         local cityPantheon = "NONE"
+        local cityOwnerFoundedReligion = "NONE"
 
         if ownerID ~= -1 then
             local config = PlayerConfigurations[ownerID]
@@ -115,8 +117,15 @@ function ExportMapToJSONChunked()
                 local cityBuildings = city:GetBuildings()
                 for row in GameInfo.Buildings() do
                     if cityBuildings:HasBuilding(row.Index) and not (row.IsWonder) then
-                        table.insert(buildings, row.BuildingType)
+                        table.insert(buildings, SafeLookup(row.Name))
                     end
+                end
+
+                local playerID = city:GetOwner()
+                local religionType = Players[playerID]:GetReligion():GetReligionTypeCreated()
+
+                if religionType ~= -1 then
+                    cityOwnerFoundedReligion = Game.GetReligion():GetName(religionType)
                 end
             end
         end
@@ -125,7 +134,7 @@ function ExportMapToJSONChunked()
         if districtID ~= -1 then
             local districtInfo = GameInfo.Districts[districtID]
             if districtInfo then
-                districtType = SafeLookup(districtInfo.DistrictType)
+                districtType = SafeLookup(districtInfo.Name)
             end
         end
 
@@ -159,7 +168,7 @@ function ExportMapToJSONChunked()
         local wonderType = plot:GetWonderType()
         if wonderType ~= -1 then
             local wonderInfo = GameInfo.Buildings[wonderType]
-            theWonder = wonderInfo.BuildingType
+            theWonder = SafeLookup(wonderInfo.Name)
         end
 
         local plotData = 
@@ -176,6 +185,7 @@ function ExportMapToJSONChunked()
             IsCity = plot:IsCity(),
             TileCity = tileCityOwner,
             CityPantheon = cityPantheon,
+            CityOwnerFoundedReligion = cityOwnerFoundedReligion,
             IsRiver = plot:IsRiver(),
             IsNEOfRiver = plot:IsNEOfRiver(),
             IsWOfRiver = plot:IsWOfRiver(),
