@@ -25,7 +25,7 @@ function JsonEncode(tbl)
         local buildingsArray = "[" .. table.concat(rawBuildings, ",") .. "]"
 
         local e = string.format(
-        "{\"X\":%d, \"Y\":%d, \"TerrainType\":\"%s\", \"FeatureType\":\"%s\", \"ResourceType\":\"%s\", \"ImprovementType\":\"%s\", \"IsHills\":%s, \"IsMountain\":%s, \"IsWater\":%s, \"IsCity\":%s, \"TileCity\":\"%s\", \"CityPantheon\":\"%s\", \"FoundedReligion\":\"%s\", \"IsRiver\":%s, \"IsNEOfRiver\":%s, \"IsWOfRiver\":%s, \"IsNWOfRiver\":%s, \"RiverSWFlow\":\"%s\", \"RiverEFlow\":\"%s\", \"RiverSEFlow\":\"%s\", \"Appeal\":%d, \"Continent\":\"%s\", \"Civilization\":\"%s\", \"Leader\":\"%s\", \"CityName\":\"%s\", \"District\":\"%s\", \"Wonder\":\"%s\", \"Buildings\":%s, \"Food\":%d, \"Production\":%d, \"Gold\":%d, \"Science\":%d, \"Culture\":%d, \"Faith\":%d}",
+        "{\"X\":%d, \"Y\":%d, \"TerrainType\":\"%s\", \"FeatureType\":\"%s\", \"ResourceType\":\"%s\", \"ImprovementType\":\"%s\", \"IsHills\":%s, \"IsMountain\":%s, \"IsWater\":%s, \"IsLake\":%s, \"IsFlatlands\":%s, \"IsCity\":%s, \"TileCity\":\"%s\", \"CityPantheon\":\"%s\", \"FoundedReligion\":\"%s\", \"IsRiver\":%s, \"IsNEOfRiver\":%s, \"IsWOfRiver\":%s, \"IsNWOfRiver\":%s, \"RiverSWFlow\":\"%s\", \"RiverEFlow\":\"%s\", \"RiverSEFlow\":\"%s\", \"Appeal\":%d, \"Continent\":\"%s\", \"Civilization\":\"%s\", \"Leader\":\"%s\", \"CityName\":\"%s\", \"District\":\"%s\", \"Wonder\":\"%s\", \"Buildings\":%s, \"Food\":%d, \"Production\":%d, \"Gold\":%d, \"Science\":%d, \"Culture\":%d, \"Faith\":%d}",
         tonumber(entry.X),
         tonumber(entry.Y),
         tostring(entry.TerrainType),
@@ -35,6 +35,8 @@ function JsonEncode(tbl)
         tostring(entry.IsHills),
         tostring(entry.IsMountain),
         tostring(entry.IsWater),
+        tostring(entry.IsLake),
+        tostring(entry.IsFlatlands),
         tostring(entry.IsCity),
         tostring(entry.TileCity),
         tostring(entry.CityPantheon),
@@ -182,6 +184,8 @@ function ExportMapToJSONChunked()
             IsHills = plot:IsHills(),
             IsMountain = plot:IsMountain(),
             IsWater = plot:IsWater(),
+            IsLake = plot:IsLake(),
+            IsFlatlands = plot:IsFlatlands(),
             IsCity = plot:IsCity(),
             TileCity = tileCityOwner,
             CityPantheon = cityPantheon,
