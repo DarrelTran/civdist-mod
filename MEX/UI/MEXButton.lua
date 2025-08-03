@@ -25,7 +25,7 @@ function JsonEncode(tbl)
         local buildingsArray = "[" .. table.concat(rawBuildings, ",") .. "]"
 
         local e = string.format(
-        "{\"X\":%d, \"Y\":%d, \"TerrainType\":\"%s\", \"FeatureType\":\"%s\", \"ResourceType\":\"%s\", \"ImprovementType\":\"%s\", \"IsHills\":%s, \"IsMountain\":%s, \"IsWater\":%s, \"IsLake\":%s, \"IsFlatlands\":%s, \"IsCity\":%s, \"TileCity\":\"%s\", \"CityPantheon\":\"%s\", \"FoundedReligion\":\"%s\", \"IsRiver\":%s, \"IsNEOfRiver\":%s, \"IsWOfRiver\":%s, \"IsNWOfRiver\":%s, \"RiverSWFlow\":\"%s\", \"RiverEFlow\":\"%s\", \"RiverSEFlow\":\"%s\", \"Appeal\":%d, \"Continent\":\"%s\", \"Civilization\":\"%s\", \"Leader\":\"%s\", \"CityName\":\"%s\", \"District\":\"%s\", \"Wonder\":\"%s\", \"Buildings\":%s, \"Food\":%d, \"Production\":%d, \"Gold\":%d, \"Science\":%d, \"Culture\":%d, \"Faith\":%d}",
+        "{\"X\":%d, \"Y\":%d, \"TerrainType\":\"%s\", \"FeatureType\":\"%s\", \"ResourceType\":\"%s\", \"ImprovementType\":\"%s\", \"IsHills\":%s, \"IsMountain\":%s, \"IsWater\":%s, \"IsLake\":%s, \"IsFlatlands\":%s, \"IsCity\":%s, \"IsWorked\":%s, \"TileCity\":\"%s\", \"CityPantheon\":\"%s\", \"FoundedReligion\":\"%s\", \"IsRiver\":%s, \"IsNEOfRiver\":%s, \"IsWOfRiver\":%s, \"IsNWOfRiver\":%s, \"RiverSWFlow\":\"%s\", \"RiverEFlow\":\"%s\", \"RiverSEFlow\":\"%s\", \"Appeal\":%d, \"Continent\":\"%s\", \"Civilization\":\"%s\", \"Leader\":\"%s\", \"CityName\":\"%s\", \"District\":\"%s\", \"Wonder\":\"%s\", \"Buildings\":%s, \"Food\":%d, \"Production\":%d, \"Gold\":%d, \"Science\":%d, \"Culture\":%d, \"Faith\":%d}",
         tonumber(entry.X),
         tonumber(entry.Y),
         tostring(entry.TerrainType),
@@ -38,6 +38,7 @@ function JsonEncode(tbl)
         tostring(entry.IsLake),
         tostring(entry.IsFlatlands),
         tostring(entry.IsCity),
+        tostring(entry.IsWorked),
         tostring(entry.TileCity),
         tostring(entry.CityPantheon),
         tostring(entry.CityOwnerFoundedReligion),
@@ -99,6 +100,7 @@ function ExportMapToJSONChunked()
         local theWonder = "NONE"
         local cityPantheon = "NONE"
         local cityOwnerFoundedReligion = "NONE"
+        local isWorked = false
 
         if ownerID ~= -1 then
             local config = PlayerConfigurations[ownerID]
@@ -129,6 +131,9 @@ function ExportMapToJSONChunked()
                 if religionType ~= -1 then
                     cityOwnerFoundedReligion = Game.GetReligion():GetName(religionType)
                 end
+
+                local citizens = city:GetCitizens();
+                isWorked = citizens:IsPlotWorked(plot:GetX(), plot:GetY())
             end
         end
 
@@ -187,6 +192,7 @@ function ExportMapToJSONChunked()
             IsLake = plot:IsLake(),
             IsFlatlands = plot:IsFlatlands(),
             IsCity = plot:IsCity(),
+            IsWorked = isWorked,
             TileCity = tileCityOwner,
             CityPantheon = cityPantheon,
             CityOwnerFoundedReligion = cityOwnerFoundedReligion,
