@@ -23,9 +23,21 @@ function JsonEncode(tbl)
             table.insert(rawBuildings, "\"" .. escapeString(b) .. "\"")
         end
         local buildingsArray = "[" .. table.concat(rawBuildings, ",") .. "]"
+        
+        local rawFavored = {}
+        for _, b in ipairs(entry.FavoredYields or {}) do
+            table.insert(rawFavored, "\"" .. escapeString(b) .. "\"")
+        end
+        local favoredArray = "[" .. table.concat(rawFavored, ",") .. "]"
+
+        local rawDisfavored = {}
+        for _, b in ipairs(entry.DisfavoredYields or {}) do
+            table.insert(rawDisfavored, "\"" .. escapeString(b) .. "\"")
+        end
+        local disfavoredArray = "[" .. table.concat(rawDisfavored, ",") .. "]"
 
         local e = string.format(
-        "{\"X\":%d, \"Y\":%d, \"TerrainType\":\"%s\", \"FeatureType\":\"%s\", \"ResourceType\":\"%s\", \"ImprovementType\":\"%s\", \"IsHills\":%s, \"IsMountain\":%s, \"IsWater\":%s, \"IsLake\":%s, \"IsFlatlands\":%s, \"IsCity\":%s, \"IsWorked\":%s, \"TileCity\":\"%s\", \"CityPantheon\":\"%s\", \"FoundedReligion\":\"%s\", \"IsRiver\":%s, \"IsNEOfRiver\":%s, \"IsWOfRiver\":%s, \"IsNWOfRiver\":%s, \"RiverSWFlow\":\"%s\", \"RiverEFlow\":\"%s\", \"RiverSEFlow\":\"%s\", \"Appeal\":%d, \"Continent\":\"%s\", \"Civilization\":\"%s\", \"Leader\":\"%s\", \"CityName\":\"%s\", \"District\":\"%s\", \"Wonder\":\"%s\", \"Buildings\":%s, \"Food\":%d, \"Production\":%d, \"Gold\":%d, \"Science\":%d, \"Culture\":%d, \"Faith\":%d}",
+        "{\"X\":%d, \"Y\":%d, \"TerrainType\":\"%s\", \"FeatureType\":\"%s\", \"ResourceType\":\"%s\", \"ImprovementType\":\"%s\", \"IsHills\":%s, \"IsMountain\":%s, \"IsWater\":%s, \"IsLake\":%s, \"IsFlatlands\":%s, \"IsCity\":%s, \"IsWorked\":%s, \"TileCity\":\"%s\", \"CityPantheon\":\"%s\", \"FoundedReligion\":\"%s\", \"IsRiver\":%s, \"IsNEOfRiver\":%s, \"IsWOfRiver\":%s, \"IsNWOfRiver\":%s, \"RiverSWFlow\":\"%s\", \"RiverEFlow\":\"%s\", \"RiverSEFlow\":\"%s\", \"Appeal\":%d, \"Continent\":\"%s\", \"Civilization\":\"%s\", \"Leader\":\"%s\", \"CityName\":\"%s\", \"District\":\"%s\", \"Wonder\":\"%s\", \"Buildings\":%s, \"Food\":%d, \"Production\":%d, \"Gold\":%d, \"Science\":%d, \"Culture\":%d, \"Faith\":%d, \"FavoredYields\":%s, \"DisfavoredYields\":%s}",
         tonumber(entry.X),
         tonumber(entry.Y),
         tostring(entry.TerrainType),
@@ -54,7 +66,9 @@ function JsonEncode(tbl)
         tostring(entry.Wonder),
         buildingsArray,
         tonumber(entry.Food), tonumber(entry.Production), tonumber(entry.Gold),
-        tonumber(entry.Science), tonumber(entry.Culture), tonumber(entry.Faith)
+        tonumber(entry.Science), tonumber(entry.Culture), tonumber(entry.Faith),
+        favoredArray,
+        disfavoredArray
     )
 
         json = json .. e
@@ -101,6 +115,8 @@ function ExportMapToJSONChunked()
         local cityPantheon = "NONE"
         local cityOwnerFoundedReligion = "NONE"
         local isWorked = false
+        local citizenFavoredYield = {}
+        local citizenDisfavoredYield = {}
 
         if ownerID ~= -1 then
             local config = PlayerConfigurations[ownerID]
@@ -134,6 +150,14 @@ function ExportMapToJSONChunked()
 
                 local citizens = city:GetCitizens();
                 isWorked = citizens:IsPlotWorked(plot:GetX(), plot:GetY())
+
+                for yield in GameInfo.Yields() do
+                    if citizens:IsFavoredYield(yield.Index) then
+                        table.insert(citizenFavoredYield, SafeLookup(yield.Name));
+                    elseif citizens:IsDisfavoredYield(yield.Index) then
+                        table.insert(citizenDisfavoredYield, SafeLookup(yield.Name));
+                    end
+                end
             end
         end
 
@@ -216,7 +240,9 @@ function ExportMapToJSONChunked()
             Gold = plot:GetYield(2),
             Science = plot:GetYield(3),
             Culture = plot:GetYield(4),
-            Faith = plot:GetYield(5)
+            Faith = plot:GetYield(5),
+            FavoredYields = citizenFavoredYield,
+            DisfavoredYields = citizenDisfavoredYield
         }
 
         table.insert(chunk, plotData)
