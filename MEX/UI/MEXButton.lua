@@ -94,12 +94,29 @@ DirectionTypes = {
     "DIRECTION_NORTHWEST" -- 5
 };
 
+local cityCitizenMap = {}
+
 function ExportMapToJSONChunked()
     print("MAP_DATA_START")
 
     local chunkSize = 1
     local chunk = {}
     local count = 0
+
+    for i = 0, Map.GetPlotCount() - 1 do
+        local plot = Map.GetPlotByIndex(i)
+
+        if plot:IsCity() then
+            local city = Cities.GetCityInPlot(plot:GetX(), plot:GetY())
+            if city then
+                cityName = SafeLookup(city:GetName())
+
+                local citizens = city:GetCitizens();
+
+                cityCitizenMap[cityName] = citizens;
+            end
+        end
+    end
 
     for i = 0, Map.GetPlotCount() - 1 do
         local plot = Map.GetPlotByIndex(i)
@@ -172,6 +189,11 @@ function ExportMapToJSONChunked()
         local cityTile = Cities.GetPlotPurchaseCity(plot)
         if cityTile then
             tileCityOwner = SafeLookup(cityTile:GetName())
+
+            local cityCitizens = cityCitizenMap[tileCityOwner];
+            if cityCitizens ~= nil then
+                isWorked = cityCitizens:IsPlotWorked(plot:GetX(), plot:GetY())
+            end
         end
 
         local SWFlow = plot:GetRiverSWFlowDirection()
