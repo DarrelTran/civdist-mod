@@ -37,7 +37,7 @@ function JsonEncode(tbl)
         local disfavoredArray = "[" .. table.concat(rawDisfavored, ",") .. "]"
 
         local e = string.format(
-        "{\"X\":%d, \"Y\":%d, \"TerrainType\":\"%s\", \"FeatureType\":\"%s\", \"ResourceType\":\"%s\", \"ImprovementType\":\"%s\", \"IsHills\":%s, \"IsMountain\":%s, \"IsWater\":%s, \"IsLake\":%s, \"IsFlatlands\":%s, \"IsCity\":%s, \"IsWorked\":%s, \"TileCity\":\"%s\", \"CityPantheon\":\"%s\", \"FoundedReligion\":\"%s\", \"IsRiver\":%s, \"IsNEOfRiver\":%s, \"IsWOfRiver\":%s, \"IsNWOfRiver\":%s, \"RiverSWFlow\":\"%s\", \"RiverEFlow\":\"%s\", \"RiverSEFlow\":\"%s\", \"Appeal\":%d, \"Continent\":\"%s\", \"Civilization\":\"%s\", \"Leader\":\"%s\", \"CityName\":\"%s\", \"District\":\"%s\", \"Wonder\":\"%s\", \"Buildings\":%s, \"Food\":%d, \"Production\":%d, \"Gold\":%d, \"Science\":%d, \"Culture\":%d, \"Faith\":%d, \"FavoredYields\":%s, \"DisfavoredYields\":%s}",
+        "{\"X\":%d, \"Y\":%d, \"TerrainType\":\"%s\", \"FeatureType\":\"%s\", \"ResourceType\":\"%s\", \"ImprovementType\":\"%s\", \"IsHills\":%s, \"IsMountain\":%s, \"IsWater\":%s, \"IsLake\":%s, \"IsFlatlands\":%s, \"IsCity\":%s, \"Population\":%d, \"IsWorked\":%s, \"TileCity\":\"%s\", \"CityPantheon\":\"%s\", \"FoundedReligion\":\"%s\", \"IsRiver\":%s, \"IsNEOfRiver\":%s, \"IsWOfRiver\":%s, \"IsNWOfRiver\":%s, \"RiverSWFlow\":\"%s\", \"RiverEFlow\":\"%s\", \"RiverSEFlow\":\"%s\", \"Appeal\":%d, \"Continent\":\"%s\", \"Civilization\":\"%s\", \"Leader\":\"%s\", \"CityName\":\"%s\", \"District\":\"%s\", \"Wonder\":\"%s\", \"Buildings\":%s, \"Food\":%d, \"Production\":%d, \"Gold\":%d, \"Science\":%d, \"Culture\":%d, \"Faith\":%d, \"FavoredYields\":%s, \"DisfavoredYields\":%s}",
         tonumber(entry.X),
         tonumber(entry.Y),
         tostring(entry.TerrainType),
@@ -50,6 +50,7 @@ function JsonEncode(tbl)
         tostring(entry.IsLake),
         tostring(entry.IsFlatlands),
         tostring(entry.IsCity),
+        tostring(entry.Population),
         tostring(entry.IsWorked),
         tostring(entry.TileCity),
         tostring(entry.CityPantheon),
@@ -134,6 +135,7 @@ function ExportMapToJSONChunked()
         local isWorked = false
         local citizenFavoredYield = {}
         local citizenDisfavoredYield = {}
+        local thePopulation = -1; -- -1 means not the city tile
 
         if ownerID ~= -1 then
             local config = PlayerConfigurations[ownerID]
@@ -175,6 +177,8 @@ function ExportMapToJSONChunked()
                         table.insert(citizenDisfavoredYield, SafeLookup(yield.Name));
                     end
                 end
+
+                thePopulation = city:GetPopulation();
             end
         end
 
@@ -238,6 +242,7 @@ function ExportMapToJSONChunked()
             IsLake = plot:IsLake(),
             IsFlatlands = plot:IsFlatlands(),
             IsCity = plot:IsCity(),
+            Population = thePopulation,
             IsWorked = isWorked,
             TileCity = tileCityOwner,
             CityPantheon = cityPantheon,
