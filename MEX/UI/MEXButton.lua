@@ -37,7 +37,7 @@ function JsonEncode(tbl)
         local disfavoredArray = "[" .. table.concat(rawDisfavored, ",") .. "]"
 
         local e = string.format(
-        "{\"X\":%d, \"Y\":%d, \"TerrainType\":\"%s\", \"FeatureType\":\"%s\", \"ResourceType\":\"%s\", \"ImprovementType\":\"%s\", \"IsHills\":%s, \"IsMountain\":%s, \"IsWater\":%s, \"IsLake\":%s, \"IsFlatlands\":%s, \"IsCity\":%s, \"Population\":%d, \"IsWorked\":%s, \"TileCity\":\"%s\", \"CityPantheon\":\"%s\", \"FoundedReligion\":\"%s\", \"IsRiver\":%s, \"IsNEOfRiver\":%s, \"IsWOfRiver\":%s, \"IsNWOfRiver\":%s, \"RiverSWFlow\":\"%s\", \"RiverEFlow\":\"%s\", \"RiverSEFlow\":\"%s\", \"Appeal\":%d, \"Continent\":\"%s\", \"Civilization\":\"%s\", \"Leader\":\"%s\", \"CityName\":\"%s\", \"District\":\"%s\", \"Wonder\":\"%s\", \"Buildings\":%s, \"Food\":%d, \"Production\":%d, \"Gold\":%d, \"Science\":%d, \"Culture\":%d, \"Faith\":%d, \"FavoredYields\":%s, \"DisfavoredYields\":%s}",
+        "{\"X\":%d, \"Y\":%d, \"TerrainType\":\"%s\", \"FeatureType\":\"%s\", \"ResourceType\":\"%s\", \"ImprovementType\":\"%s\", \"IsHills\":%s, \"IsMountain\":%s, \"IsWater\":%s, \"IsLake\":%s, \"IsFlatlands\":%s, \"IsCity\":%s, \"IsCapital\":%s, \"OriginalOwner\":\"%s\", \"Population\":%d, \"IsWorked\":%s, \"TileCity\":\"%s\", \"CityPantheon\":\"%s\", \"FoundedReligion\":\"%s\", \"IsRiver\":%s, \"IsNEOfRiver\":%s, \"IsWOfRiver\":%s, \"IsNWOfRiver\":%s, \"RiverSWFlow\":\"%s\", \"RiverEFlow\":\"%s\", \"RiverSEFlow\":\"%s\", \"Appeal\":%d, \"Continent\":\"%s\", \"Civilization\":\"%s\", \"Leader\":\"%s\", \"CityName\":\"%s\", \"District\":\"%s\", \"Wonder\":\"%s\", \"Buildings\":%s, \"Food\":%d, \"Production\":%d, \"Gold\":%d, \"Science\":%d, \"Culture\":%d, \"Faith\":%d, \"FavoredYields\":%s, \"DisfavoredYields\":%s}",
         tonumber(entry.X),
         tonumber(entry.Y),
         tostring(entry.TerrainType),
@@ -50,6 +50,8 @@ function JsonEncode(tbl)
         tostring(entry.IsLake),
         tostring(entry.IsFlatlands),
         tostring(entry.IsCity),
+        tostring(entry.IsCapital),
+        tostring(entry.OriginalOwner),
         tostring(entry.Population),
         tostring(entry.IsWorked),
         tostring(entry.TileCity),
@@ -136,6 +138,9 @@ function ExportMapToJSONChunked()
         local citizenFavoredYield = {}
         local citizenDisfavoredYield = {}
         local thePopulation = -1; -- -1 means not the city tile
+        local isCapital = false
+        local continent = "NONE"
+        local originalOwner = "NONE"
 
         if ownerID ~= -1 then
             local config = PlayerConfigurations[ownerID]
@@ -179,6 +184,14 @@ function ExportMapToJSONChunked()
                 end
 
                 thePopulation = city:GetPopulation();
+                isCapital = city:IsOriginalCapital();
+            end
+
+            if ownerID ~= -1 then
+                local config = PlayerConfigurations[city:GetOriginalOwner()]
+                if config then
+                    originalOwner = SafeLookup(config:GetCivilizationDescription())
+                end
             end
         end
 
@@ -228,6 +241,11 @@ function ExportMapToJSONChunked()
             theWonder = SafeLookup(wonderInfo.Name)
         end
 
+        local theContinent = plot:GetContinentType()
+        if theContinent ~= -1 then
+            continent = SafeLookup(GameInfo.Continents[theContinent].Description)
+        end
+
         local plotData = 
         {
             X = plot:GetX(),
@@ -243,6 +261,8 @@ function ExportMapToJSONChunked()
             IsFlatlands = plot:IsFlatlands(),
             IsCity = plot:IsCity(),
             Population = thePopulation,
+            IsCapital = isCapital,
+            OriginalOwner = originalOwner,
             IsWorked = isWorked,
             TileCity = tileCityOwner,
             CityPantheon = cityPantheon,
@@ -255,7 +275,7 @@ function ExportMapToJSONChunked()
             RiverEFlow = EFlow,
             RiverSEFlow = SEFlow,
             Appeal = plot:GetAppeal(),
-            ContinentType = SafeLookup(GameInfo.Continents[plot:GetContinentType()] and GameInfo.Continents[plot:GetContinentType()].Name),
+            ContinentType = continent,
             OwnerCiv = civ,
             OwnerLeader = leader,
             CityName = cityName,
