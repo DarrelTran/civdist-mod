@@ -2,7 +2,7 @@ A mod intended for **VANILLA** Civilization VI to export map data to the lua.log
 **Must install [the gui tool](https://github.com/DarrelTran/civdist-gui.git) first to convert the lua.log data to a .json file. This .json is intended to be used with [CivDist](https://github.com/DarrelTran/civdist.git) to load the map.**
 
 # How to install and use:
-1. Download the latest relase. 
+1. Download the latest relase of the mod and the gui tool. 
 2. Extract the folder to Documents/My Games/Sid Meier's Civilization VI/Mods and enable the mod in-game. 
 3. After loading a map in-game, near the top right and above the leader icons, click the 'Export Map' button. (See [Export Map button location](#export-map-button-location))
 4. Open the [the gui tool](https://github.com/DarrelTran/civdist-gui.git).
