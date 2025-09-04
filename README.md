@@ -8,7 +8,7 @@ A mod intended for **VANILLA** Civilization VI to export map data to the lua.log
 4. Wait a couple seconds for the data to output. If the map is very large, there will be a noticable game freeze, but just wait until the freeze is gone.
 5. Open the [the gui tool](https://github.com/DarrelTran/civdist-gui.git).
 6. Point the input box to your lua.log file (typically in AppData/Local/Firaxis Games/Sid Meier's Civilization VI/Logs/Lua.log).
-7. Set the output to whatever you like. You can add a \fileName.json to the end of your output path to specify the file name. Otherwise, it defaults to civJSON.json.
+7. Set the output to wherever you like. You can add a \fileName.json to the end of your output path to specify the file name. Otherwise, it defaults to civJSON.json.
 8. Press the 'Start' button and it should popup a success message with your .json file ready.
 
 # Export Map button location:
