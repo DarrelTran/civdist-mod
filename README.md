@@ -4,7 +4,7 @@ A mod intended for **VANILLA** Civilization VI to export map data to the lua.log
 # How to install and use:
 *Note that closing and opening Civ 6 will wipe the lua.log file. However, only closing the game will retain the lua.log data.*
 1. Download the latest relase of the mod and the gui tool. Follow the instructions on [the gui tool's page](https://github.com/DarrelTran/civdist-gui.git) to learn how to install it.
-2. Extract the folder of this mod to Documents/My Games/Sid Meier's Civilization VI/Mods and enable the mod in-game. 
+2. Extract the folder of this mod to Documents/My Games/Sid Meier's Civilization VI/Mods and enable the mod in-game. Make sure the folder you extract contains the .modinfo file and MEX folder when you open it without needing to navigate to any inner folders.
 3. After loading a map in-game, near the top right and above the leader icons, click the 'Export Map' button. (See [Export Map button location](#export-map-button-location))
 4. Wait a couple seconds for the data to output. If the map is very large, there will be a noticable game freeze, but just wait until the freeze is gone.
 5. Close Civ 6.
