@@ -1,5 +1,5 @@
 A mod intended for **VANILLA** Civilization VI to export map data to the lua.log file. It might work with dlcs, but that is not supported.        
-**Must install [the gui tool](https://github.com/DarrelTran/civdist-gui.git) first to parse the lua.log .json to a .json file ready for the Civdist website. This .json is intended to be used with [CivDist](https://github.com/DarrelTran/civdist.git) to load the map.**
+**Must install [the gui tool](https://github.com/DarrelTran/civdist-gui.git) first to parse the lua.log .json file. This .json is intended to be used with [CivDist](https://github.com/DarrelTran/civdist.git) to load the map.**
 
 # How to install and use:
 *Note that closing and opening Civ 6 will wipe the lua.log file. However, only closing the game will retain the lua.log data.*
